@@ -47,13 +47,13 @@ $env:GIGACHAT_BASE_URL='https://gigachat.devices.sberbank.ru'
 ### Linux / macOS
 
 ```bash
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ### Windows PowerShell
 
 ```powershell
-mvn.cmd spring-boot:run
+./mvnw.cmd spring-boot:run
 ```
 
 После старта откройте:
@@ -100,12 +100,12 @@ gci env:JAVA_OPTS
 Remove-Item env:MAVEN_OPTS -ErrorAction SilentlyContinue
 Remove-Item env:JAVA_TOOL_OPTIONS -ErrorAction SilentlyContinue
 Remove-Item env:JAVA_OPTS -ErrorAction SilentlyContinue
-mvn.cmd spring-boot:run
+./mvnw.cmd spring-boot:run
 ```
 
 3. Если не помогло, соберите jar и запустите напрямую:
 
 ```powershell
-mvn.cmd clean package
+./mvnw.cmd clean package
 java -jar .\target\gigachat-demo-0.0.1-SNAPSHOT.jar
 ```
