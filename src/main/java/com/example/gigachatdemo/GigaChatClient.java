@@ -6,6 +6,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -58,7 +60,7 @@ public class GigaChatClient {
 
         Map<String, Object> response = restClient.post()
                 .uri("/api/v2/oauth")
-                .header("Authorization", "Basic " + properties.authKey())
+                .header("Authorization", "Basic " + resolveAuthKey())
                 .header("RqUID", UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(formData)
@@ -70,5 +72,22 @@ public class GigaChatClient {
         }
 
         return String.valueOf(response.get("access_token"));
+    }
+
+    private String resolveAuthKey() {
+        if (notBlank(properties.authKey())) {
+            return properties.authKey().trim();
+        }
+
+        if (notBlank(properties.clientId()) && notBlank(properties.clientSecret())) {
+            String pair = properties.clientId().trim() + ":" + properties.clientSecret().trim();
+            return Base64.getEncoder().encodeToString(pair.getBytes(StandardCharsets.UTF_8));
+        }
+
+        throw new IllegalStateException("Укажите gigachat.auth-key или пару gigachat.client-id + gigachat.client-secret");
+    }
+
+    private static boolean notBlank(String value) {
+        return value != null && !value.isBlank();
     }
 }
