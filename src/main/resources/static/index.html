@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GigaChat Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 12px; }
+        textarea { width: 100%; min-height: 120px; }
+        button { margin-top: 12px; padding: 8px 14px; }
+        #answer { white-space: pre-wrap; border: 1px solid #ddd; padding: 12px; margin-top: 16px; }
+    </style>
+</head>
+<body>
+<h1>Проверка GigaChat</h1>
+<p>Введите вопрос, нажмите «Спросить» и получите ответ от модели.</p>
+<label for="question">Ваш вопрос:</label>
+<textarea id="question" placeholder="Например: Объясни, что такое REST API простыми словами"></textarea>
+<br>
+<button id="askBtn">Спросить</button>
+
+<h3>Ответ:</h3>
+<div id="answer">—</div>
+
+<script>
+    const btn = document.getElementById('askBtn');
+    const question = document.getElementById('question');
+    const answer = document.getElementById('answer');
+
+    btn.addEventListener('click', async () => {
+        const text = question.value.trim();
+        if (!text) {
+            answer.textContent = 'Введите вопрос.';
+            return;
+        }
+
+        answer.textContent = 'Отправляю запрос...';
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: text })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                answer.textContent = `Ошибка ${response.status}: ${errorText}`;
+                return;
+            }
+
+            const data = await response.json();
+            answer.textContent = data.answer ?? 'Пустой ответ';
+        } catch (e) {
+            answer.textContent = 'Ошибка сети: ' + e;
+        }
+    });
+</script>
+</body>
+</html>
