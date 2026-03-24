@@ -5,44 +5,16 @@
 - вводите вопрос,
 - получаете ответ от GigaChat.
 
-## 1) Что нужно
+## Быстрый старт
 
-- Java 17+
-- Maven 3.9+
-- Ваш `Authorization Key` (base64 строка)
+В `src/main/resources/application.properties` уже заполнены ваши данные:
+- `Authorization Key`
+- `Client ID`
+- `Client Secret`
 
-Проверьте окружение перед запуском:
+Поэтому можно запускать сразу.
 
-```bash
-java -version
-mvn -version
-```
-
-## 2) Настройка
-
-Перед запуском задайте переменные окружения.
-
-### Linux / macOS
-
-```bash
-export GIGACHAT_AUTH_KEY='ВАШ_AUTHORIZATION_KEY'
-export GIGACHAT_SCOPE='GIGACHAT_API_PERS'
-export GIGACHAT_MODEL='GigaChat'
-export GIGACHAT_BASE_URL='https://gigachat.devices.sberbank.ru'
-```
-
-### Windows PowerShell
-
-```powershell
-$env:GIGACHAT_AUTH_KEY='ВАШ_AUTHORIZATION_KEY'
-$env:GIGACHAT_SCOPE='GIGACHAT_API_PERS'
-$env:GIGACHAT_MODEL='GigaChat'
-$env:GIGACHAT_BASE_URL='https://gigachat.devices.sberbank.ru'
-```
-
-> Если используете другой scope/model, просто поменяйте значения.
-
-## 3) Запуск
+## Запуск
 
 ### Linux / macOS
 
@@ -53,16 +25,40 @@ $env:GIGACHAT_BASE_URL='https://gigachat.devices.sberbank.ru'
 ### Windows PowerShell
 
 ```powershell
-./mvnw.cmd spring-boot:run
+.\mvnw.cmd spring-boot:run
 ```
 
 После старта откройте:
 
 - http://localhost:8080
 
-## 4) API
+## Если в PowerShell ошибка `-classpath requires class path specification`
 
-Можно вызывать и напрямую:
+Скорее всего проблема в переменных JVM/Maven в вашей среде, а не в коде.
+
+Проверьте, что вы вводите **ровно одну команду** без символов `\n` в конце:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+Дальше очистите возможные конфликтные переменные и повторите запуск:
+
+```powershell
+Remove-Item env:MAVEN_OPTS -ErrorAction SilentlyContinue
+Remove-Item env:JAVA_TOOL_OPTIONS -ErrorAction SilentlyContinue
+Remove-Item env:JAVA_OPTS -ErrorAction SilentlyContinue
+.\mvnw.cmd spring-boot:run
+```
+
+Если всё равно ошибка, запустите через jar:
+
+```powershell
+.\mvnw.cmd clean package
+java -jar .\target\gigachat-demo-0.0.1-SNAPSHOT.jar
+```
+
+## API
 
 ```bash
 curl -X POST 'http://localhost:8080/api/chat' \
@@ -70,42 +66,8 @@ curl -X POST 'http://localhost:8080/api/chat' \
   -d '{"question":"Что такое Spring Boot?"}'
 ```
 
-Пример ответа:
+Ответ:
 
 ```json
 {"answer":"..."}
-```
-
-## 5) Как это работает
-
-1. Приложение получает access token через `POST /api/v2/oauth`.
-2. С этим токеном отправляет вопрос в `POST /api/v1/chat/completions`.
-3. Возвращает первый ответ модели.
-
-## 6) Если на Windows ошибка `-classpath requires class path specification`
-
-Обычно причина не в этом проекте, а в переменных окружения Java/Maven (например, некорректный `MAVEN_OPTS` / `JAVA_TOOL_OPTIONS`).
-
-1. Проверьте переменные:
-
-```powershell
-gci env:MAVEN_OPTS
-gci env:JAVA_TOOL_OPTIONS
-gci env:JAVA_OPTS
-```
-
-2. Если там есть `-classpath` или странные JVM-флаги — очистите их и запустите снова:
-
-```powershell
-Remove-Item env:MAVEN_OPTS -ErrorAction SilentlyContinue
-Remove-Item env:JAVA_TOOL_OPTIONS -ErrorAction SilentlyContinue
-Remove-Item env:JAVA_OPTS -ErrorAction SilentlyContinue
-./mvnw.cmd spring-boot:run
-```
-
-3. Если не помогло, соберите jar и запустите напрямую:
-
-```powershell
-./mvnw.cmd clean package
-java -jar .\target\gigachat-demo-0.0.1-SNAPSHOT.jar
 ```
